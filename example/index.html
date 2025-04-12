@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go WASM テスト</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    input {
+      width: 100px;
+      padding: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 5px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Go WASM テスト</h1>
+
+  <div>
+    <input type="number" id="num1" value="5">
+    +
+    <input type="number" id="num2" value="3">
+    <button id="calculate">計算</button>
+  </div>
+
+  <div class="result" id="result">
+    結果: <span id="output">-</span>
+  </div>
+
+  <script src="../dist/wasm_exec.js"></script>
+  <script>
+    // WASMを読み込む
+    async function loadWasm() {
+      const go = new Go();
+
+      try {
+        const result = await WebAssembly.instantiateStreaming(
+          fetch('../dist/main.wasm'),
+          go.importObject
+        );
+
+        go.run(result.instance);
+
+        console.log('WASM loaded successfully');
+
+        // 計算ボタンのイベントリスナーを設定
+        document.getElementById('calculate').addEventListener('click', calculate);
+      } catch (err) {
+        console.error('Failed to load WASM:', err);
+        document.getElementById('output').textContent = 'エラー: WASMの読み込みに失敗しました';
+      }
+    }
+
+    // 計算を実行
+    function calculate() {
+      const num1 = parseInt(document.getElementById('num1').value);
+      const num2 = parseInt(document.getElementById('num2').value);
+
+      try {
+        if (typeof window.goAdd !== 'function') {
+          throw new Error('goAdd関数が見つかりません');
+        }
+
+        const result = window.goAdd(num1, num2);
+        document.getElementById('output').textContent = result;
+      } catch (err) {
+        console.error('Calculation error:', err);
+        document.getElementById('output').textContent = 'エラー: ' + err.message;
+      }
+    }
+
+    // ページ読み込み時にWASMを読み込む
+    window.addEventListener('load', loadWasm);
+  </script>
+</body>
+</html>

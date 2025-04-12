@@ -1,0 +1,24 @@
+{
+  "name": "mygowasm",
+  "version": "0.1.0",
+  "description": "Go言語で実装された単純な計算機能をWASMとして提供するnpmパッケージ",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "./build.sh && tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "wasm",
+    "go",
+    "calculator"
+  ],
+  "author": "kazto",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
